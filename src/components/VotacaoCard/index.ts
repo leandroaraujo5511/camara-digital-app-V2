@@ -1,0 +1,1 @@
+export { VotacaoCard } from './VotacaoCard';

@@ -1,0 +1,1 @@
+export { VereadorAvatar } from './VereadorAvatar';
