@@ -2,14 +2,14 @@
 export const environment = {
   // Desenvolvimento local - IP da sua máquina na rede
   development: {
-    apiUrl: 'http://192.168.18.96:3000',
-    timeout: 10000,
+    apiUrl: process.env.EXPO_PUBLIC_API_URL || 'http://192.168.18.96:3000',
+    timeout: parseInt(process.env.EXPO_PUBLIC_API_TIMEOUT || '10000'),
   },
   
   // Produção (quando o app for publicado)
   production: {
-    apiUrl: 'https://api.camaradigital.com.br',
-    timeout: 15000,
+    apiUrl: process.env.EXPO_PUBLIC_API_URL || 'https://api.camaradigital.com.br',
+    timeout: parseInt(process.env.EXPO_PUBLIC_API_TIMEOUT || '15000'),
   },
 };
 
@@ -31,9 +31,11 @@ export const apiConfig = {
   timeout: getCurrentEnvironment().timeout,
 };
 
-// Log da configuração atual para debug
-console.log('🔧 API Config:', {
-  baseURL: apiConfig.baseURL,
-  timeout: apiConfig.timeout,
-  environment: __DEV__ ? 'development' : 'production'
-});
+// Log da configuração atual para debug (apenas em desenvolvimento)
+if (__DEV__) {
+  console.log('🔧 API Config:', {
+    baseURL: apiConfig.baseURL,
+    timeout: apiConfig.timeout,
+    environment: 'development'
+  });
+}

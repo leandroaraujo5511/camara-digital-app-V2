@@ -28,6 +28,11 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "scheme": "vereadorvotingapp"
+    "scheme": "vereadorvotingapp",
+    "extra": {
+      "eas": {
+        "projectId": "1480ae55-8f66-4b20-8de7-24c5fa9a8396"
+      }
+    }
   }
 }
