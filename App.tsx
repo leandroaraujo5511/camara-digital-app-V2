@@ -10,6 +10,7 @@ import { HomeScreen } from './src/screens/HomeScreen';
 import { VotingScreen } from './src/screens/VotingScreen';
 import VotacaoScreen from './src/screens/VotacaoScreen';
 import { TenantSelectionScreen } from './src/screens/TenantSelectionScreen';
+import { UpdateManager } from './src/components/UpdateManager';
 
 type RootStackParamList = {
   TenantSelection: undefined;
@@ -58,6 +59,7 @@ export default function App() {
           <NavigationContainer>
             <StatusBar style="auto" />
             <AppNavigator />
+            <UpdateManager autoCheck={true} showNotification={true} />
           </NavigationContainer>
         </VotacaoProvider>
       </AuthProvider>

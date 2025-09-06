@@ -205,23 +205,35 @@ export const VotacaoProvider: React.FC<VotacaoProviderProps> = ({ children }) =>
 		try {
 			console.log('🔄 Selecionando nova votação:', votacao.title);
 			console.log('🔄 Votação anterior:', votacaoAtual?.title);
+			console.log('🔄 Estado atual - votos:', votosAtuais.length, 'estatísticas:', estatisticas);
 			
 			// Limpar dados da votação anterior
+			console.log('🧹 Limpando dados da votação anterior...');
 			setVotosAtuais([]);
 			setEstatisticas(null);
 			
 			// Definir nova votação atual
+			console.log('📝 Definindo nova votação atual:', votacao.id);
 			setVotacaoAtual(votacao);
 			
 			// Carregar votos da nova votação
+			console.log('📥 Carregando votos da nova votação...');
 			const votos = await votacaoService.getVotosByVotacao(votacao.id);
-			setVotosAtuais(votos);
+			console.log('📥 Votos carregados da API:', votos.length, votos);
 			
-			// Carregar estatísticas da nova votação
-			await atualizarEstatisticas();
+			// Aguardar um tick para garantir que o estado seja atualizado
+			setVotosAtuais(votos);
+			await new Promise(resolve => setTimeout(resolve, 100));
+			console.log('📥 Votos definidos no estado');
+			
+			// Carregar estatísticas da nova votação usando os votos já carregados
+			console.log('📊 Carregando estatísticas da nova votação...');
+			await atualizarEstatisticas(votos);
+			console.log('📊 Estatísticas carregadas');
 			
 			console.log('✅ Votação selecionada:', votacao.title);
 			console.log('✅ Votos carregados:', votos.length);
+			console.log('✅ Estado final - votos:', votosAtuais.length, 'estatísticas:', estatisticas);
 		} catch (error) {
 			console.error('❌ Erro ao selecionar votação:', error);
 			Toast.show({
@@ -279,13 +291,22 @@ export const VotacaoProvider: React.FC<VotacaoProviderProps> = ({ children }) =>
 		}
 	};
 
-	const atualizarEstatisticas = async () => {
-		if (!votacaoAtual) return;
+	const atualizarEstatisticas = async (votosFornecidos?: Vote[]) => {
+		if (!votacaoAtual) {
+			console.log('⚠️ atualizarEstatisticas: Nenhuma votação atual definida');
+			return;
+		}
 		
 		try {
-			const stats = await votacaoService.getEstatisticasVotacao(votacaoAtual.id);
+			console.log('📊 atualizarEstatisticas: Iniciando para votação:', votacaoAtual.id);
+			console.log('📊 atualizarEstatisticas: Votos atuais no estado:', votosAtuais.length);
+			console.log('📊 atualizarEstatisticas: Votos fornecidos:', votosFornecidos?.length || 'nenhum');
+			
+			const stats = await votacaoService.getEstatisticasVotacao(votacaoAtual.id, votosFornecidos);
+			console.log('📊 atualizarEstatisticas: Estatísticas recebidas da API:', stats);
+			
 			setEstatisticas(stats);
-			console.log('✅ Estatísticas atualizadas:', stats);
+			console.log('✅ Estatísticas atualizadas no estado:', stats);
 		} catch (error) {
 			console.error('❌ Erro ao atualizar estatísticas:', error);
 		}
@@ -306,12 +327,14 @@ export const VotacaoProvider: React.FC<VotacaoProviderProps> = ({ children }) =>
 	}, [vereador]);
 
 	// Atualizar estatísticas quando a votação atual mudar
-	useEffect(() => {
-		if (votacaoAtual) {
-			console.log('🔄 Votação atual mudou, atualizando estatísticas');
-			atualizarEstatisticas();
-		}
-	}, [votacaoAtual]);
+	// REMOVIDO: Esta chamada estava causando condição de corrida
+	// As estatísticas são atualizadas manualmente em selecionarVotacao
+	// useEffect(() => {
+	// 	if (votacaoAtual) {
+	// 		console.log('🔄 Votação atual mudou, atualizando estatísticas');
+	// 		atualizarEstatisticas();
+	// 	}
+	// }, [votacaoAtual]);
 
 	// Limpar dados quando a votação atual for limpa
 	useEffect(() => {
@@ -321,6 +344,11 @@ export const VotacaoProvider: React.FC<VotacaoProviderProps> = ({ children }) =>
 			setEstatisticas(null);
 		}
 	}, [votacaoAtual]);
+
+	// Monitorar mudanças no estado para debug
+	useEffect(() => {
+		console.log('🔍 Estado atualizado - votosAtuais:', votosAtuais.length, 'estatisticas:', estatisticas);
+	}, [votosAtuais, estatisticas]);
 
 	// Selecionar automaticamente a primeira votação se não houver uma selecionada
 	useEffect(() => {

@@ -16,6 +16,7 @@ import { Input } from '@/components/Input/Input';
 import { Button } from '@/components/Button/Button';
 import { colors } from '@/styles/colors';
 import { MaterialIcons } from '@expo/vector-icons';
+import Constants from 'expo-constants';
 
 export const LoginScreen: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -175,6 +176,9 @@ export const LoginScreen: React.FC = () => {
             <Text style={styles.footerText}>
               Apenas vereadores autorizados podem acessar o sistema
             </Text>
+            <Text style={styles.versionText}>
+              v{Constants.expoConfig?.version || '1.0.0'}
+            </Text>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -265,6 +269,22 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.slate[400],
     marginLeft: 4,
+    fontWeight: '500',
+  },
+
+  versionText: {
+    fontSize: 11,
+    color: colors.slate[500],
+    textAlign: 'center',
+    marginTop: 8,
+    opacity: 0.7,
+  },
+
+  testIndicator: {
+    fontSize: 12,
+    color: colors.orange[400],
+    textAlign: 'center',
+    marginTop: 4,
     fontWeight: '500',
   },
 });

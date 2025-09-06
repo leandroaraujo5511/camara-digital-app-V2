@@ -29,6 +29,12 @@
       "favicon": "./assets/favicon.png"
     },
     "scheme": "vereadorvotingapp",
+    "updates": {
+      "url": "https://u.expo.dev/1480ae55-8f66-4b20-8de7-24c5fa9a8396"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "extra": {
       "eas": {
         "projectId": "1480ae55-8f66-4b20-8de7-24c5fa9a8396"

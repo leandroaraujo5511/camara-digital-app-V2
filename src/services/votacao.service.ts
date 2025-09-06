@@ -79,12 +79,14 @@ export const votacaoService = {
 	async getVotosByVotacao(votacaoId: string): Promise<Vote[]> {
 		try {
 			// Usar a rota que existe: /votes?votacaoId={id}
-			console.log('🔍 Buscando votos para votação:', votacaoId);
+			console.log('🔍 getVotosByVotacao: Buscando votos para votação:', votacaoId);
 			const response = await api.get(`/votes?votacaoId=${votacaoId}`);
-			console.log('✅ Votos encontrados:', response.data.data.length);
+			console.log('🔍 getVotosByVotacao: Resposta da API:', response.data);
+			console.log('✅ getVotosByVotacao: Votos encontrados:', response.data.data.length);
+			console.log('✅ getVotosByVotacao: Votos retornados:', response.data.data);
 			return response.data.data;
 		} catch (error) {
-			console.error('Erro ao buscar votos por votação:', error);
+			console.error('❌ getVotosByVotacao: Erro ao buscar votos por votação:', error);
 			// Retornar array vazio em caso de erro
 			return [];
 		}
@@ -114,17 +116,29 @@ export const votacaoService = {
 		}
 	},
 
-	async getEstatisticasVotacao(votacaoId: string): Promise<VotacaoStats> {
+	async getEstatisticasVotacao(votacaoId: string, votos?: Vote[]): Promise<VotacaoStats> {
 		try {
-			// Buscar todos os votos da votação
-			const votos = await this.getVotosByVotacao(votacaoId);
+			console.log('📊 getEstatisticasVotacao: Iniciando para votação:', votacaoId);
+			
+			let votosParaCalcular: Vote[];
+			
+			if (votos) {
+				// Usar votos fornecidos como parâmetro
+				console.log('📊 getEstatisticasVotacao: Usando votos fornecidos:', votos.length, votos);
+				votosParaCalcular = votos;
+			} else {
+				// Buscar votos da API (fallback)
+				console.log('📊 getEstatisticasVotacao: Buscando votos da API...');
+				votosParaCalcular = await this.getVotosByVotacao(votacaoId);
+				console.log('📊 getEstatisticasVotacao: Votos recebidos da API:', votosParaCalcular.length, votosParaCalcular);
+			}
 			
 			// Calcular estatísticas localmente
-			const total = votos.length;
-			const sim = votos.filter(voto => voto.vote === 'SIM').length;
-			const nao = votos.filter(voto => voto.vote === 'NAO').length;
-			const abstencao = votos.filter(voto => voto.vote === 'ABSTENCAO').length;
-			const ausente = votos.filter(voto => voto.vote === 'AUSENTE').length;
+			const total = votosParaCalcular.length;
+			const sim = votosParaCalcular.filter(voto => voto.vote === 'SIM').length;
+			const nao = votosParaCalcular.filter(voto => voto.vote === 'NAO').length;
+			const abstencao = votosParaCalcular.filter(voto => voto.vote === 'ABSTENCAO').length;
+			const ausente = votosParaCalcular.filter(voto => voto.vote === 'AUSENTE').length;
 			
 			const percentualSim = total > 0 ? Math.round((sim / total) * 100) : 0;
 			const percentualNao = total > 0 ? Math.round((nao / total) * 100) : 0;
@@ -139,10 +153,10 @@ export const votacaoService = {
 				percentualNao
 			};
 			
-			console.log('📊 Estatísticas calculadas localmente:', estatisticas);
+			console.log('📊 getEstatisticasVotacao: Estatísticas calculadas localmente:', estatisticas);
 			return estatisticas;
 		} catch (error) {
-			console.error('Erro ao calcular estatísticas da votação:', error);
+			console.error('❌ getEstatisticasVotacao: Erro ao calcular estatísticas da votação:', error);
 			// Retornar estatísticas vazias em caso de erro
 			return {
 				total: 0,

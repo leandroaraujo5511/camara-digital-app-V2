@@ -1,7 +1,7 @@
 {
   "name": "vereador-voting-app",
   "main": "node_modules/expo/AppEntry.js",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Aplicativo React Native para vereadores votarem nas pautas da Câmara Municipal",
   "scripts": {
     "start": "expo start",
@@ -15,15 +15,21 @@
     "build:ios": "expo build:ios",
     "build:apk:dev": "eas build --platform android --profile development",
     "build:apk:preview": "eas build --platform android --profile preview",
+    "build:apk:staging": "eas build --platform android --profile staging",
     "build:apk:prod": "eas build --platform android --profile production",
-    "build:all": "eas build --platform all"
+    "build:all": "eas build --platform all",
+    "update:dev": "eas update --channel development --message",
+    "update:preview": "eas update --channel preview --message",
+    "update:staging": "eas update --channel staging --message",
+    "update:prod": "eas update --channel production --message",
+    "update:auto": "eas update --auto"
   },
   "jest": {
     "preset": "jest-expo"
   },
   "dependencies": {
-    "@expo/vector-icons": "^14.0.2",
-    "@react-native-async-storage/async-storage": "^2.2.0",
+    "@expo/vector-icons": "~14.0.4",
+    "@react-native-async-storage/async-storage": "1.23.1",
     "@react-navigation/native": "^7.0.14",
     "@react-navigation/native-stack": "^7.0.0",
     "axios": "^1.6.0",
@@ -32,6 +38,7 @@
     "expo-font": "~13.0.4",
     "expo-splash-screen": "~0.29.22",
     "expo-status-bar": "~2.0.1",
+    "expo-updates": "~0.27.4",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-native": "0.76.9",
