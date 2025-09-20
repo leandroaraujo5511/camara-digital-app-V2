@@ -77,6 +77,7 @@ export const votingService = {
 
   // Atualizar voto
   async atualizarVoto(voteId: string, voto: 'SIM' | 'NAO' | 'ABSTENCAO' | 'AUSENTE'): Promise<Vote> {
+    console.log('Atualizando voto:', voteId, voto);
     try {
       const response = await api.put(`/votes/${voteId}`, {
         vote: voto,

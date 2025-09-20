@@ -251,3 +251,9 @@ Se encontrar problemas:
 2. Verificar logs do EAS
 3. Consultar documentação oficial
 4. Contatar suporte se necessário
+
+
+
+
+
+

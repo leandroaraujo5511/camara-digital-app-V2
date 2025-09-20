@@ -50,6 +50,7 @@ export const votacaoService = {
 	},
 
 	async registrarVoto(votoRequest: VotoRequest): Promise<Vote> {
+		console.log('votoRequest', votoRequest);
 		try {
 			// Se um voteId foi fornecido, atualizar o voto existente
 			if (votoRequest.voteId) {
@@ -59,9 +60,11 @@ export const votacaoService = {
 			
 			// Primeiro, verificar se o vereador já votou
 			const votoExistente = await this.getVotoByVereador(votoRequest.votacaoId, votoRequest.vereadorId);
+			console.log('votoExistente', votoExistente);
 			
 			if (votoExistente) {
 				// Se já votou, atualizar o voto existente
+				console.log('votoExistente', votoExistente);
 				console.log('🔄 Vereador já votou, atualizando voto existente...');
 				return await this.atualizarVoto(votoExistente.id, votoRequest.vote);
 			} else {
@@ -95,7 +98,6 @@ export const votacaoService = {
 	async getVotoByVereador(votacaoId: string, vereadorId: string): Promise<Vote | null> {
 		try {
 			// Usar a rota que existe: /votes?votacaoId={id}&vereadorId={id}
-			console.log('🔍 Buscando voto do vereador:', vereadorId, 'na votação:', votacaoId);
 			const response = await api.get(`/votes?votacaoId=${votacaoId}&vereadorId=${vereadorId}`);
 			const votos = response.data.data;
 			// Retornar o primeiro voto encontrado (deve ser único)

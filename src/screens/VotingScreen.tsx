@@ -37,13 +37,15 @@ interface VotingScreenProps {
 export const VotingScreen: React.FC<VotingScreenProps> = ({ route, navigation }) => {
   const { vereador } = useAuth();
   const { votacaoId } = route.params;
+
+  console.log('Votacao ID:', votacaoId);
   
   const [votacao, setVotacao] = useState<Votacao | null>(null);
   const [currentVote, setCurrentVote] = useState<Vote | null>(null);
   const [loading, setLoading] = useState(true);
   const [voting, setVoting] = useState(false);
   const [selectedVote, setSelectedVote] = useState<'SIM' | 'NAO' | 'ABSTENCAO' | 'AUSENTE' | null>(null);
-
+  console.log('currentVote', currentVote);
   useEffect(() => {
     loadVotacaoData();
   }, [votacaoId]);
@@ -119,6 +121,7 @@ export const VotingScreen: React.FC<VotingScreenProps> = ({ route, navigation })
       setVoting(true);
       
       if (currentVote) {
+        console.log('Atualizando voto existente:', currentVote, selectedVote);
         // Atualizar voto existente
         await votingService.atualizarVoto(currentVote.id, selectedVote);
         Alert.alert('Sucesso', 'Voto atualizado com sucesso!');

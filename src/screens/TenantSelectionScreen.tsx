@@ -16,7 +16,7 @@ import { colors } from '../styles/colors';
 export const TenantSelectionScreen: React.FC = () => {
   const { tenants, isLoading, selectTenant } = useTenant();
   const [selectingTenant, setSelectingTenant] = useState<string | null>(null);
-
+  console.log ('tenants', tenants);
   const handleTenantSelection = async (tenant: Tenant) => {
     try {
       setSelectingTenant(tenant.id);

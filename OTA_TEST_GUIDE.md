@@ -133,3 +133,9 @@ eas update:list
 **Status**: ✅ Pronto para teste
 
 O sistema de atualizações OTA está configurado e funcionando! 🚀
+
+
+
+
+
+

@@ -104,13 +104,19 @@ export default function VotacaoScreen() {
 				{ text: 'Cancelar', style: 'cancel' },
 				{
 					text: acao === 'alterar' ? 'Alterar' : 'Confirmar',
-					onPress: async () => {
-						const votoRequest: VotoRequest = {
-							votacaoId: votacaoAtual.id,
-							vereadorId: vereador.id,
-							vote: votoSelecionado,
-							voteId: votoExistente?.id // Incluir ID se for atualização
-						};
+				onPress: async () => {
+					// WORKAROUND: Se o ID do voto for igual ao ID do vereador, não passar voteId
+					// Isso força o sistema a usar a lógica de busca automática
+					const voteIdParaUsar = (votoExistente?.id && votoExistente.id !== vereador.id) 
+						? votoExistente.id 
+						: undefined;
+					
+					const votoRequest: VotoRequest = {
+						votacaoId: votacaoAtual.id,
+						vereadorId: vereador.id,
+						vote: votoSelecionado,
+						voteId: voteIdParaUsar // Usar ID apenas se for diferente do vereadorId
+					};
 
 						const sucesso = await registrarVoto(votoRequest);
 						if (sucesso) {
