@@ -8,15 +8,17 @@ import {
   RefreshControl,
   TouchableOpacity,
   Alert,
-  Image,
 } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
 import { votingService } from '../services/voting.service';
+import { sessionService } from '../services/session.service';
+import { presenceService } from '../services/presence.service';
 import { PautaCard } from '../components/PautaCard/PautaCard';
 import { VotacaoCard } from '../components/VotacaoCard';
 import { VereadorAvatar } from '../components/VereadorAvatar/VereadorAvatar';
 import { Button } from '../components/Button/Button';
-import { Pauta, Votacao } from '../interfaces';
+import { SessionSelectionModal } from '../components/SessionSelectionModal/SessionSelectionModal';
+import { Pauta, Votacao, Session } from '../interfaces';
 import { colors } from '../styles/colors';
 import { useNavigation } from '@react-navigation/native';
 
@@ -31,9 +33,14 @@ export const HomeScreen: React.FC = () => {
   const [historico, setHistorico] = useState<Votacao[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [showSessionModal, setShowSessionModal] = useState(false);
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [loadingSessions, setLoadingSessions] = useState(false);
+  const [registeringPresence, setRegisteringPresence] = useState(false);
 
   useEffect(() => {
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
   const loadData = async () => {
@@ -78,6 +85,109 @@ export const HomeScreen: React.FC = () => {
       [
         { text: 'Cancelar', style: 'cancel' },
         { text: 'Sair', onPress: signOut, style: 'destructive' },
+      ]
+    );
+  };
+
+  const handleRegisterPresence = async () => {
+    if (!vereador) {
+      Alert.alert('Erro', 'Usuário não encontrado');
+      return;
+    }
+
+    try {
+      setLoadingSessions(true);
+      setShowSessionModal(true);
+
+      // Buscar sessões do dia atual
+      const today = new Date().toISOString().split('T')[0]; // Formato YYYY-MM-DD
+      const sessionsData = await sessionService.getSessionsByDate(today);
+      setSessions(sessionsData);
+
+      if (sessionsData.length === 0) {
+        Alert.alert(
+          'Nenhuma sessão encontrada',
+          'Não há sessões agendadas para hoje.'
+        );
+        setShowSessionModal(false);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar sessões:', error);
+      Alert.alert('Erro', 'Não foi possível carregar as sessões. Tente novamente.');
+      setShowSessionModal(false);
+    } finally {
+      setLoadingSessions(false);
+    }
+  };
+
+  const handleSelectSession = async (session: Session) => {
+    if (!vereador) {
+      Alert.alert('Erro', 'Usuário não encontrado');
+      return;
+    }
+
+    // Verificar se já existe uma presença registrada
+    try {
+      const existingPresence = await presenceService.getPresenceBySessionAndVereador(
+        session.id,
+        vereador.id
+      );
+
+      if (existingPresence) {
+        Alert.alert(
+          'Presença já registrada',
+          'Você já registrou sua presença para esta sessão. Não é possível editar.',
+          [{ text: 'OK' }]
+        );
+        setShowSessionModal(false);
+        return;
+      }
+    } catch (error) {
+      console.error('Erro ao verificar presença existente:', error);
+    }
+
+    // Confirmar registro
+    Alert.alert(
+      'Registrar Presença',
+      `Deseja registrar sua presença na sessão "${session.title}"?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Confirmar',
+          onPress: async () => {
+            try {
+              setRegisteringPresence(true);
+
+              await presenceService.createPresence({
+                sessionId: session.id,
+                vereadorId: vereador.id,
+                status: 'PRESENT',
+                registeredBy: vereador.name,
+                arrivalTime: new Date().toISOString(),
+              });
+
+              Alert.alert(
+                'Sucesso',
+                'Presença registrada com sucesso!',
+                [
+                  {
+                    text: 'OK',
+                    onPress: () => {
+                      setShowSessionModal(false);
+                    },
+                  },
+                ]
+              );
+            } catch (error: any) {
+              console.error('Erro ao registrar presença:', error);
+              const errorMessage =
+                error.message || 'Não foi possível registrar a presença. Tente novamente.';
+              Alert.alert('Erro', errorMessage);
+            } finally {
+              setRegisteringPresence(false);
+            }
+          },
+        },
       ]
     );
   };
@@ -177,13 +287,32 @@ export const HomeScreen: React.FC = () => {
           </View>
         </View>
         
-        <Button
-          title="Sair"
-          onPress={handleSignOut}
-          variant="outline"
-          size="small"
-        />
+        <View style={styles.headerButtons}>
+          <Button
+            title="Registrar presença"
+            onPress={handleRegisterPresence}
+            variant="primary"
+            size="small"
+            style={styles.registerButton}
+            disabled={registeringPresence}
+            loading={registeringPresence}
+          />
+          <Button
+            title="Sair"
+            onPress={handleSignOut}
+            variant="outline"
+            size="small"
+          />
+        </View>
       </View>
+
+      <SessionSelectionModal
+        visible={showSessionModal}
+        sessions={sessions}
+        loading={loadingSessions}
+        onSelectSession={handleSelectSession}
+        onClose={() => setShowSessionModal(false)}
+      />
 
 
 
@@ -222,6 +351,15 @@ const styles = StyleSheet.create({
     backgroundColor: colors.slate[900],
     borderBottomWidth: 1,
     borderBottomColor: colors.slate[800],
+  },
+
+  headerButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  registerButton: {
+    marginRight: 12,
   },
 
   userInfo: {

@@ -109,3 +109,45 @@ export interface VotacaoStats {
   percentualSim: number;
   percentualNao: number;
 }
+
+export interface Session {
+  id: string;
+  tenantId: string;
+  title: string;
+  description?: string;
+  type: 'ORDINARY' | 'EXTRAORDINARY' | 'SPECIAL' | 'SOLEMN' | 'PREPARATORY';
+  sessionNumber: string;
+  legislature: string;
+  sessionDate: string;
+  startTime: string;
+  endTime?: string;
+  location?: string;
+  status: 'SCHEDULED' | 'IN_PROGRESS' | 'SUSPENDED' | 'COMPLETED' | 'CANCELLED';
+  quorum?: number;
+  totalVereadores?: number;
+  observations?: string;
+  ata?: string;
+  ataUrl?: string;
+  presidedBy?: string;
+  secretary?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Presence {
+  id: string;
+  tenantId: string;
+  sessionId: string;
+  vereadorId: string;
+  status: 'PRESENT' | 'ABSENT' | 'JUSTIFIED' | 'LATE';
+  arrivalTime?: string;
+  departureTime?: string;
+  justification?: string;
+  observations?: string;
+  registeredBy?: string;
+  registeredAt: string;
+  createdAt: string;
+  updatedAt: string;
+  vereador?: Vereador;
+  session?: Session;
+}

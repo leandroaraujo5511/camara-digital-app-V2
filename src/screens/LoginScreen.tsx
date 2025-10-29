@@ -177,7 +177,7 @@ export const LoginScreen: React.FC = () => {
               Apenas vereadores autorizados podem acessar o sistema
             </Text>
             <Text style={styles.versionText}>
-              v{Constants.expoConfig?.version || '1.0.0'}
+              v{Constants.expoConfig?.version || '1.0.2'}
             </Text>
           </View>
         </ScrollView>

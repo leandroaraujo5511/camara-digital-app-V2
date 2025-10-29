@@ -18,10 +18,13 @@ const createApiInstance = async (): Promise<AxiosInstance> => {
     async (config) => {
       try {
         const token = await AsyncStorage.getItem('@auth_token');
+        const isAuthEndpoint = config.url?.includes('/auth/login') || config.url?.includes('/auth/register');
+        
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
           console.log('🔑 Token adicionado ao header:', `Bearer ${token.substring(0, 20)}...`);
-        } else {
+        } else if (!isAuthEndpoint) {
+          // Apenas logar warning se não for endpoint de autenticação
           console.log('⚠️ Nenhum token encontrado para requisição:', config.url);
         }
         

@@ -1,7 +1,7 @@
 {
   "name": "vereador-voting-app",
   "main": "node_modules/expo/AppEntry.js",
-  "version": "1.1.0",
+  "version": "1.0.2",
   "description": "Aplicativo React Native para vereadores votarem nas pautas da Câmara Municipal",
   "scripts": {
     "start": "expo start",

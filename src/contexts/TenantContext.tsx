@@ -76,6 +76,7 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
   const loadTenants = async () => {
     try {
       const tenantsList = await tenantService.getTenants();
+      console.log('📋 Tenants carregados:', tenantsList);
       setTenants(tenantsList);
       console.log('📋 Tenants carregados:', tenantsList.length);
     } catch (error) {

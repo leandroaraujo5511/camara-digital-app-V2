@@ -12,11 +12,13 @@ import {
 import { useTenant } from '../contexts/TenantContext';
 import { Tenant } from '../interfaces';
 import { colors } from '../styles/colors';
+import { Ionicons } from '@expo/vector-icons';
 
 export const TenantSelectionScreen: React.FC = () => {
-  const { tenants, isLoading, selectTenant } = useTenant();
+  const { tenants, isLoading, selectTenant , loadTenants } = useTenant();
   const [selectingTenant, setSelectingTenant] = useState<string | null>(null);
   console.log ('tenants', tenants);
+
   const handleTenantSelection = async (tenant: Tenant) => {
     try {
       setSelectingTenant(tenant.id);
@@ -103,13 +105,19 @@ export const TenantSelectionScreen: React.FC = () => {
         </View>
 
         <View style={styles.tenantsList}>
-          {tenants.map(renderTenantCard)}
+          {tenants?.length > 0 ? tenants?.map(renderTenantCard) : <View style={styles.noTenantsContainer}>
+            <Text style={styles.noTenantsText}>Nenhuma câmara disponível</Text>
+            <TouchableOpacity style={styles.noTenantsButton} onPress={loadTenants}>
+              <Ionicons name="refresh" size={24} color={colors.slate[100]} />
+            </TouchableOpacity>
+          </View>}
         </View>
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>
+          {tenants?.length > 0 ? <Text style={styles.footerText}>
             Esta seleção será salva no seu dispositivo e não será solicitada novamente
           </Text>
+          : <View style={styles.noTenantsContainer}/>}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -187,7 +195,36 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
   },
-
+  noTenantsContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  noTenantsText: {
+    fontSize: 16,
+    color: colors.slate[400],
+    textAlign: 'center',
+    lineHeight: 24,
+    maxWidth: 300,
+  },
+  noTenantsButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: colors.slate[600],
+    marginTop: 16,
+  },
+  noTenantsButtonText: {
+    fontSize: 16,
+    color: colors.slate[100],
+    textAlign: 'center',
+    lineHeight: 24,
+    maxWidth: 300,
+  },
   tenantIcon: {
     width: 60,
     height: 60,

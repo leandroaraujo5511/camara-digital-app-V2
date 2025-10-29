@@ -1,8 +1,14 @@
+import axios from 'axios';
 import { Tenant } from '../interfaces';
 
-// API base para buscar tenants (sem subdomínio e sem autenticação)
-const BASE_API_URL = 'https://api.camaradigital.cloud';
+// API base para buscar tenants (sem subdomínio e sem autenticação - produção)
+const BASE_API_URL = 'http://api.camaradigital.cloud';
 
+// API base para buscar tenants (sem subdomínio e sem autenticação - desenvolvimento)
+// const BASE_API_URL = 'https://192.168.18.185:3000';
+const apiTenant = axios.create({
+  baseURL: BASE_API_URL,
+});
 export const tenantService = {
   // Buscar lista de tenants disponíveis (rota aberta)
   async getTenants(): Promise<Tenant[]> {
@@ -10,25 +16,10 @@ export const tenantService = {
       console.log('🔍 Buscando tenants da API...');
       
       // Usar a rota pública que acabamos de implementar
-      const response = await fetch(`${BASE_API_URL}/public/tenants`);
-      
-      if (response.ok) {
-        const data = await response.json();
-        console.log('✅ Tenants obtidos da API:', data.data?.length || 0);
-        
-        // Mapear dados para o formato esperado pelo app
-        const mappedTenants = data.data.map((tenant: any) => ({
-          id: tenant.id,
-          subdomain: tenant.subdomain,
-          name: tenant.name,
-          city: tenant.city,
-          state: tenant.state,
-          status: tenant.status,
-          createdAt: tenant.createdAt,
-          updatedAt: tenant.updatedAt,
-        }));
-        
-        return mappedTenants;
+      const response = await apiTenant.get(`/public/tenants`);
+      console.log('🔍 Response:', response);
+      if (response.status === 200) {
+        return response.data.data as Tenant[];
       } else {
         console.warn('⚠️ API retornou status:', response.status);
         throw new Error(`HTTP ${response.status}`);
@@ -38,28 +29,7 @@ export const tenantService = {
       console.log('🔄 Usando lista de tenants padrão...');
       
       // Fallback para dados padrão em caso de erro
-      return [
-        {
-          id: 'veramendes',
-          subdomain: 'veramendes',
-          name: 'Câmara Municipal de Vera Mendes',
-          city: 'Vera Mendes',
-          state: 'PI',
-          status: 'active',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-        {
-          id: 'domexpeditolopes',
-          subdomain: 'domexpeditolopes',
-          name: 'Câmara Municipal de Dom Expedito Lopes',
-          city: 'Dom Expedito Lopes',
-          state: 'PI',
-          status: 'active',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-      ];
+      return [] as unknown as Tenant[];
     }
   },
 
