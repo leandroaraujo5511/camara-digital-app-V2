@@ -16,7 +16,7 @@ import { Input } from '@/components/Input/Input';
 import { Button } from '@/components/Button/Button';
 import { colors } from '@/styles/colors';
 import { MaterialIcons } from '@expo/vector-icons';
-import Constants from 'expo-constants';
+import { VERSION } from '@/config/vesion';
 
 export const LoginScreen: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -177,7 +177,7 @@ export const LoginScreen: React.FC = () => {
               Apenas vereadores autorizados podem acessar o sistema
             </Text>
             <Text style={styles.versionText}>
-              v{Constants.expoConfig?.version || '1.0.2'}
+              v{VERSION}
             </Text>
           </View>
         </ScrollView>

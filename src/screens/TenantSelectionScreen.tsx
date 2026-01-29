@@ -62,7 +62,7 @@ export const TenantSelectionScreen: React.FC = () => {
               {tenant.city} - {tenant.state}
             </Text>
             <Text style={styles.tenantSubdomain}>
-              {tenant.subdomain}.camaradigital.com.br
+              {tenant.subdomain}.camaradigital.cloud
             </Text>
           </View>
         </View>

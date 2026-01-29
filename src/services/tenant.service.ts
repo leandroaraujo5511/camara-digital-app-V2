@@ -2,7 +2,7 @@ import axios from 'axios';
 import { Tenant } from '../interfaces';
 
 // API base para buscar tenants (sem subdomínio e sem autenticação - produção)
-const BASE_API_URL = 'http://api.camaradigital.cloud';
+const BASE_API_URL = 'https://api.camaradigital.cloud';
 
 // API base para buscar tenants (sem subdomínio e sem autenticação - desenvolvimento)
 // const BASE_API_URL = 'https://192.168.18.185:3000';
