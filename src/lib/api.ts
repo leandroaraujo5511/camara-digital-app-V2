@@ -22,9 +22,11 @@ const createApiInstance = async (): Promise<AxiosInstance> => {
         
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
-          console.log('🔑 Token adicionado ao header:', `Bearer ${token.substring(0, 20)}...`);
-        } else if (!isAuthEndpoint) {
-          // Apenas logar warning se não for endpoint de autenticação
+          if (__DEV__) {
+            console.log('🔑 Token adicionado ao header:', `Bearer ${token.substring(0, 20)}...`);
+          }
+        } else if (!isAuthEndpoint && __DEV__) {
+          // Apenas logar warning se não for endpoint de autenticação (apenas em dev)
           console.log('⚠️ Nenhum token encontrado para requisição:', config.url);
         }
         
@@ -33,8 +35,10 @@ const createApiInstance = async (): Promise<AxiosInstance> => {
         if (selectedTenant) {
           const tenant = JSON.parse(selectedTenant);
           config.headers['X-Tenant-Subdomain'] = tenant.subdomain;
-          console.log('🏛️ Tenant header adicionado:', tenant.subdomain);
-        } else {
+          if (__DEV__) {
+            console.log('🏛️ Tenant header adicionado:', tenant.subdomain);
+          }
+        } else if (__DEV__) {
           console.log('⚠️ Nenhum tenant selecionado para requisição:', config.url);
         }
       } catch (error) {
@@ -73,13 +77,16 @@ const getApiInstance = async (): Promise<AxiosInstance> => {
 
 // Função para atualizar a URL da API (útil quando o tenant muda)
 export const updateApiUrl = async () => {
-  console.log('🔄 Atualizando API URL...');
+  if (__DEV__) {
+    console.log('🔄 Atualizando API URL...');
+  }
   const oldInstance = apiInstance;
   apiInstance = await createApiInstance();
-  console.log('✅ API URL atualizada, nova instância criada');
-  
-  if (oldInstance) {
-    console.log('🗑️ Instância anterior descartada');
+  if (__DEV__) {
+    console.log('✅ API URL atualizada, nova instância criada');
+    if (oldInstance) {
+      console.log('🗑️ Instância anterior descartada');
+    }
   }
 };
 

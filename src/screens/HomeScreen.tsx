@@ -158,12 +158,18 @@ export const HomeScreen: React.FC = () => {
             try {
               setRegisteringPresence(true);
 
+              // Converter data atual para formato HH:MM
+              const now = new Date();
+              const hours = String(now.getHours()).padStart(2, '0');
+              const minutes = String(now.getMinutes()).padStart(2, '0');
+              const arrivalTime = `${hours}:${minutes}`;
+
               await presenceService.createPresence({
                 sessionId: session.id,
                 vereadorId: vereador.id,
                 status: 'PRESENT',
                 registeredBy: vereador.name,
-                arrivalTime: new Date().toISOString(),
+                arrivalTime: arrivalTime,
               });
 
               Alert.alert(

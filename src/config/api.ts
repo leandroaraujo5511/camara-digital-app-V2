@@ -18,7 +18,9 @@ export const generateApiUrl = async (): Promise<string> => {
           if (selectedTenant) {
       const tenant = JSON.parse(selectedTenant);
       const url = `https://${API_CONFIG.BASE_HOST}`;
-      console.log('🔗 API URL gerada:', url);
+      if (__DEV__) {
+        console.log('🔗 API URL gerada:', url);
+      }
       return url;
     }
   } catch (error) {
@@ -27,13 +29,17 @@ export const generateApiUrl = async (): Promise<string> => {
   
   // Fallback para URL base
   const fallbackUrl = `https://${API_CONFIG.BASE_HOST}`;
-  console.log('⚠️ Usando URL fallback:', fallbackUrl);
+  if (__DEV__) {
+    console.log('⚠️ Usando URL fallback:', fallbackUrl);
+  }
   return fallbackUrl;
 };
 
-// Log da configuração para debug
-console.log('🔧 API Config:', {
-  baseHost: API_CONFIG.BASE_HOST,
-  timeout: API_CONFIG.TIMEOUT,
-  environment: __DEV__ ? 'development' : 'production'
-});
+// Log da configuração para debug (apenas em desenvolvimento)
+if (__DEV__) {
+  console.log('🔧 API Config:', {
+    baseHost: API_CONFIG.BASE_HOST,
+    timeout: API_CONFIG.TIMEOUT,
+    environment: 'development'
+  });
+}

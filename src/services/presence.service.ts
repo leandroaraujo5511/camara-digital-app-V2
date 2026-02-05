@@ -5,9 +5,9 @@ export interface CreatePresenceData {
   sessionId: string;
   vereadorId: string;
   status: 'PRESENT' | 'ABSENT' | 'JUSTIFIED' | 'LATE';
-  arrivalTime?: string;
+  arrivalTime?: string; // Formato HH:MM (ex: "18:36")
   registeredBy?: string;
-  departureTime?: string;
+  departureTime?: string; // Formato HH:MM (ex: "20:15")
   justification?: string;
   observations?: string;
 }
@@ -15,14 +15,37 @@ export interface CreatePresenceData {
 export const presenceService = {
   // Registrar presença em uma sessão
   async createPresence(data: CreatePresenceData): Promise<Presence> {
+    if (__DEV__) {
+      console.log('Registrando presença:', data);
+    }
     try {
       const response = await api.post('/presences', data);
       return response.data.data;
     } catch (error: any) {
       console.error('Erro ao registrar presença:', error);
-      if (error.response?.status === 400 && error.response?.data?.message?.includes('Já existe')) {
-        throw new Error('Já existe um registro de presença para este vereador nesta sessão');
+      
+      if (error.response?.status === 400) {
+        const errorData = error.response?.data;
+        
+        // Mensagem de duplicata
+        if (errorData?.message?.includes('Já existe')) {
+          throw new Error('Já existe um registro de presença para este vereador nesta sessão');
+        }
+        
+        // Mensagens de validação do Zod
+        if (errorData?.errors && Array.isArray(errorData.errors)) {
+          const validationErrors = errorData.errors
+            .map((err: any) => err.message || `${err.path.join('.')}: ${err.message}`)
+            .join('\n');
+          throw new Error(`Dados inválidos:\n${validationErrors}`);
+        }
+        
+        // Mensagem genérica do backend
+        if (errorData?.message) {
+          throw new Error(errorData.message);
+        }
       }
+      
       throw error;
     }
   },
