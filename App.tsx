@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
+import * as SplashScreen from 'expo-splash-screen';
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 import { TenantProvider, useTenant } from './src/contexts/TenantContext';
 import { VotacaoProvider } from './src/contexts/VotacaoContext';
@@ -11,6 +12,9 @@ import { VotingScreen } from './src/screens/VotingScreen';
 import VotacaoScreen from './src/screens/VotacaoScreen';
 import { TenantSelectionScreen } from './src/screens/TenantSelectionScreen';
 import { UpdateManager } from './src/components/UpdateManager';
+
+// Prevenir que o splash screen seja escondido automaticamente
+SplashScreen.preventAutoHideAsync();
 
 type RootStackParamList = {
   TenantSelection: undefined;
@@ -25,6 +29,21 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 function AppNavigator() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { isTenantConfigured, isLoading: tenantLoading } = useTenant();
+
+  // Esconder splash screen quando a inicialização terminar
+  useEffect(() => {
+    if (!authLoading && !tenantLoading) {
+      // Aguardar um pouco para garantir que tudo está pronto
+      const timer = setTimeout(async () => {
+        try {
+          await SplashScreen.hideAsync();
+        } catch (error) {
+          console.error('Erro ao esconder splash screen:', error);
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [authLoading, tenantLoading]);
 
   // Mostrar loading enquanto carrega as configurações
   if (authLoading || tenantLoading) {

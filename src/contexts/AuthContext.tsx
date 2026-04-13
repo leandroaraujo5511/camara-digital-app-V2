@@ -39,12 +39,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       ]);
 
       if (storedUser && storedVereador && storedToken) {
-        setUser(JSON.parse(storedUser));
-        setVereador(JSON.parse(storedVereador));
-        setToken(storedToken);
+        try {
+          const user = JSON.parse(storedUser);
+          const vereador = JSON.parse(storedVereador);
+          
+          setUser(user);
+          setVereador(vereador);
+          setToken(storedToken);
+        } catch (parseError) {
+          console.error('Erro ao fazer parse dos dados armazenados:', parseError);
+          // Limpar dados corrompidos
+          await AsyncStorage.multiRemove([
+            '@user_data',
+            '@vereador_data',
+            '@auth_token',
+          ]);
+        }
       }
     } catch (error) {
       console.error('Erro ao carregar dados armazenados:', error);
+      // Em caso de erro, garantir que o loading seja finalizado
     } finally {
       setIsLoading(false);
     }

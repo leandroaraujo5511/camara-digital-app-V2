@@ -8,7 +8,7 @@ export const API_CONFIG = {
   // Para produção (descomente quando for publicar)
   // BASE_HOST: 'api.camaradigital.com.br',
   
-  TIMEOUT: 10000,
+  TIMEOUT: 100000,
 };
 
 // Função para gerar URL da API baseada no tenant selecionado

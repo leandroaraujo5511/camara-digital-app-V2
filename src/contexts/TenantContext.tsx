@@ -27,20 +27,31 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
   const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking');
 
   useEffect(() => {
-    loadStoredTenant();
-    checkBackendAndLoadTenants();
+    initializeTenant();
   }, []);
 
-  const loadStoredTenant = async () => {
+  const initializeTenant = async () => {
     try {
-      const storedTenant = await AsyncStorage.getItem('@selected_tenant');
+      // Carregar tenant do storage e verificar backend em paralelo
+      const [storedTenant] = await Promise.all([
+        AsyncStorage.getItem('@selected_tenant'),
+        checkBackendAndLoadTenants(),
+      ]);
+
+      // Processar tenant armazenado
       if (storedTenant) {
-        const tenant = JSON.parse(storedTenant);
-        setSelectedTenant(tenant);
-        console.log('🏛️ Tenant carregado do storage:', tenant.name);
+        try {
+          const tenant = JSON.parse(storedTenant);
+          setSelectedTenant(tenant);
+          console.log('🏛️ Tenant carregado do storage:', tenant.name);
+        } catch (parseError) {
+          console.error('Erro ao fazer parse do tenant:', parseError);
+          // Limpar tenant inválido
+          await AsyncStorage.removeItem('@selected_tenant');
+        }
       }
     } catch (error) {
-      console.error('Erro ao carregar tenant do storage:', error);
+      console.error('Erro ao inicializar tenant:', error);
     } finally {
       setIsLoading(false);
     }
@@ -69,7 +80,11 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
     } catch (error) {
       console.error('Erro ao verificar backend:', error);
       setBackendStatus('offline');
-      await loadTenants();
+      try {
+        await loadTenants();
+      } catch (loadError) {
+        console.error('Erro ao carregar tenants após falha no backend:', loadError);
+      }
     }
   };
 

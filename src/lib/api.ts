@@ -33,10 +33,16 @@ const createApiInstance = async (): Promise<AxiosInstance> => {
         // Adicionar header do tenant selecionado
         const selectedTenant = await AsyncStorage.getItem('@selected_tenant');
         if (selectedTenant) {
-          const tenant = JSON.parse(selectedTenant);
-          config.headers['X-Tenant-Subdomain'] = tenant.subdomain;
-          if (__DEV__) {
-            console.log('🏛️ Tenant header adicionado:', tenant.subdomain);
+          try {
+            const tenant = JSON.parse(selectedTenant);
+            if (tenant?.subdomain) {
+              config.headers['X-Tenant-Subdomain'] = tenant.subdomain;
+              if (__DEV__) {
+                console.log('🏛️ Tenant header adicionado:', tenant.subdomain);
+              }
+            }
+          } catch (parseError) {
+            console.error('Erro ao fazer parse do tenant no interceptor:', parseError);
           }
         } else if (__DEV__) {
           console.log('⚠️ Nenhum tenant selecionado para requisição:', config.url);
